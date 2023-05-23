@@ -32,16 +32,19 @@ logger = logging.getLogger(__name__)
 
 
 def check_tokens():
+    """Проверка токенов в переменных окружения."""
     tokens = [PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]
     return all(tokens)
 
 
 def send_message(bot, message):
+    """Отправка сообщений ботом."""
     bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
     logger.info('Бот отправил сообщение')
 
 
 def get_api_answer(timestamp):
+    """Отправка запроса к API."""
     payload = {'from_date': timestamp}
     response = requests.get(
         ENDPOINT, headers=HEADERS, params=payload)
@@ -56,6 +59,7 @@ def get_api_answer(timestamp):
 
 
 def check_response(response):
+    """Проверка ответа API и получение списка списка заданий."""
     counter = {0: 0}
     old_status = {0: ''}
     logger.debug(response)
@@ -79,8 +83,8 @@ def check_response(response):
 
 
 def parse_status(homework):
+    """Проверка статуса работы из ответа API."""
     status = homework.get('status')
-    # проверка статуса согласно требованиям код-ревью
     if status not in HOMEWORK_VERDICTS:
         logger.error('Неизвестный статус')
         raise Exception('Неизвестный статус')
@@ -95,9 +99,10 @@ def parse_status(homework):
 
 
 def main():
+    """Основная логика работы бота."""
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    if ((PRACTICUM_TOKEN == '') or
-            (TELEGRAM_TOKEN == '') or (TELEGRAM_CHAT_ID == 0)):
+    if ((PRACTICUM_TOKEN == '')
+            or (TELEGRAM_TOKEN == '') or (TELEGRAM_CHAT_ID == 0)):
         message = 'Отсутствуют обязательные переменные окружения'
         logger.critical(message)
         send_message(bot, message)
