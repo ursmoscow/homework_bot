@@ -8,8 +8,8 @@ import requests
 from telegram import Bot
 from dotenv import load_dotenv
 
-from exceptions import (EmptyListException, InvalidApiExc, InvalidResponseExc,
-                        InvalidTokenException, InvalidJsonExc)
+from exceptions import (EmptyListException, InvalidApiExc,
+                        InvalidResponseExc, InvalidJsonExc)
 
 load_dotenv()
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
@@ -39,11 +39,21 @@ logger.addHandler(handler)
 
 
 def check_tokens():
-    """Проверка токенов в переменных окружения."""
-    tokens = [PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]
-    if tokens is None:
-        logger.critical('Нет токенов в переменных окружения.')
-    return all(tokens)
+    """Проверка наличия токенов в  переменном окружении."""
+    required_tokens = ['PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID']
+    missing_tokens = []
+
+    for token in required_tokens:
+        if not os.environ.get(token):
+            missing_tokens.append(token)
+
+    if missing_tokens:
+        missing_tokens_str = ', '.join(missing_tokens)
+        logging.critical('Отстутсвует переменная в виртуальном окружении: %s',
+                         missing_tokens_str)
+        return False
+
+    return True
 
 
 def send_message(bot, message):
@@ -115,10 +125,7 @@ def main():
     current_timestamp = 0
     last_error = ''
     last_message = ''
-    if not check_tokens():
-        logger.critical('Недоступны переменные окружения!')
-        raise InvalidTokenException('Недоступны переменные окружения')
-    while True:
+    while True and check_tokens():
         try:
             logger.debug('Начало итерации, запрос к API')
             response = get_api_answer(current_timestamp)
