@@ -46,8 +46,11 @@ def check_tokens():
 
 def send_message(bot, message):
     """Отправка сообщений ботом."""
-    bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
-    logger.info('Бот отправил сообщение')
+    try:
+        bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+        logger.debug(f'Бот отправил сообщение: {message}')
+    except Exception as error:
+        logger.error(f'Ошибка отправки сообщения: {error}')
 
 
 def get_api_answer(timestamp):
