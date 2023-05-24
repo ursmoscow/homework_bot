@@ -8,8 +8,8 @@ import requests
 from telegram import Bot
 from dotenv import load_dotenv
 
-from builtins import (EmptyListException, InvalidApiExc, InvalidResponseExc,
-                      InvalidTokenException, InvalidJsonExc)
+from exceptions import (EmptyListException, InvalidApiExc, InvalidResponseExc,
+                        InvalidTokenException, InvalidJsonExc)
 
 load_dotenv()
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
