@@ -41,6 +41,8 @@ logger.addHandler(handler)
 def check_tokens():
     """Проверка токенов в переменных окружения."""
     tokens = [PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]
+    if tokens is None:
+        logger.critical('Нет токенов в переменных окружения.')
     return all(tokens)
 
 
