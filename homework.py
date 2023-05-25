@@ -121,11 +121,12 @@ def parse_status(homework):
 
 def main():
     """Основная логика работы бота."""
+    check_tokens()
     bot = Bot(token=TELEGRAM_TOKEN)
     current_timestamp = 0
     last_error = ''
     last_message = ''
-    while True and check_tokens():
+    while True:
         try:
             logger.debug('Начало итерации, запрос к API')
             response = get_api_answer(current_timestamp)
