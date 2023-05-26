@@ -39,18 +39,14 @@ logger.addHandler(handler)
 
 
 def check_tokens():
-    """Проверка наличия токенов в  переменном окружении."""
-    required_tokens = ['PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID']
-    missing_tokens = []
-
-    for token in required_tokens:
-        if not os.environ.get(token):
-            missing_tokens.append(token)
-
-    if missing_tokens:
-        missing_tokens_str = ', '.join(missing_tokens)
-        logging.critical('Отстутсвует переменная в виртуальном окружении: %s',
-                         missing_tokens_str)
+    if not PRACTICUM_TOKEN:
+        logging.critical("PRACTICUM_TOKEN отсутствует в окружении!")
+        return False
+    if not TELEGRAM_TOKEN:
+        logging.critical("TELEGRAM_TOKEN отсутствует в окружении!")
+        return False
+    if not TELEGRAM_CHAT_ID:
+        logging.critical("TELEGRAM_CHAT_ID отсутствует в окружении!")
         return False
 
     return True
