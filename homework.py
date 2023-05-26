@@ -12,9 +12,9 @@ from exceptions import (EmptyListException, InvalidApiExc,
                         InvalidResponseExc, InvalidJsonExc)
 
 load_dotenv()
-PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN', None)
-TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN', None)
-TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', None)
+PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 RETRY_PERIOD = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
@@ -39,6 +39,7 @@ logger.addHandler(handler)
 
 
 def check_tokens():
+    """Проверка токенов в окружении."""
     if not PRACTICUM_TOKEN:
         logging.critical("PRACTICUM_TOKEN отсутствует в окружении!")
         return False
