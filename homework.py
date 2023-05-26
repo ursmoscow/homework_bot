@@ -121,7 +121,8 @@ def parse_status(homework):
 
 def main():
     """Основная логика работы бота."""
-    check_tokens()
+    if check_tokens() is False:
+        sys.exit(0)
     bot = Bot(token=TELEGRAM_TOKEN)
     current_timestamp = 0
     last_error = ''
