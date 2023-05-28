@@ -88,8 +88,6 @@ def get_api_answer(timestamp):
 def check_response(response):
     """Проверка ответа API и получение списка списка заданий."""
     if response is None:
-        logging.error('Убедитесь, что в функцию `check_response`'
-                      'передан ответ API домашки.')
         raise InvalidApiExc('Некорректный ответ API')
     if not isinstance(response, dict):
         raise TypeError('not dict после .json() в ответе API')
@@ -149,8 +147,7 @@ def handle_exception(error, bot, last_message):
 
 def main():
     """Основная логика работы бота."""
-    if not check_tokens():
-        sys.exit(1)
+    check_tokens()
     bot = Bot(token=TELEGRAM_TOKEN)
     current_timestamp = 0
     last_message = ''
