@@ -87,10 +87,12 @@ def get_api_answer(timestamp):
 
 def check_response(response):
     """Проверка ответа API и получение списка списка заданий."""
+    if response is None:
+        logging.error('Убедитесь, что в функцию `check_response`'
+                      'передан ответ API домашки.')
+        raise InvalidApiExc('Некорректный ответ API')
     if not isinstance(response, dict):
         raise TypeError('not dict после .json() в ответе API')
-    if ('homeworks' not in response) or ('current_date' not in response):
-        raise InvalidApiExc('Некорректный ответ API')
     if not isinstance(response.get('homeworks'), list):
         raise TypeError('not list в ответе API по ключу homeworks')
     if not response.get('homeworks'):
@@ -117,10 +119,39 @@ def parse_status(homework):
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
+def process_homeworks(homeworks, bot, last_message):
+    """
+    Обрабатывает данные по домашним заданиям и отправляет сообщение в Телеграм,
+    если есть новые статусы.
+    Возвращает последнее отправленное сообщение (last_message).
+    """
+    status = parse_status(homeworks)
+    if status != last_message:
+        send_message(bot, status)
+        last_message = status
+    return last_message
+
+
+def handle_exception(error, bot, last_message):
+    """
+    Обрабатывает исключение и отправляет сообщение об ошибке в Телеграм.
+    Возвращает последнее отправленное сообщение (last_message).
+    """
+    message = f'Сбой в работе программы: {error}'
+    logging.error(message)
+    if message != last_message:
+        try:
+            send_message(bot, message)
+        except Exception:
+            logging.exception('Ошибка при отправке сообщения в Телеграм')
+        last_message = message
+    return last_message
+
+
 def main():
     """Основная логика работы бота."""
     if not check_tokens():
-        sys.exit(0)
+        sys.exit(1)  # Change the exit code to indicate an error   
     bot = Bot(token=TELEGRAM_TOKEN)
     current_timestamp = 0
     last_message = ''
@@ -130,18 +161,12 @@ def main():
             response = get_api_answer(current_timestamp)
             current_timestamp = response.get('current_date')
             homeworks = check_response(response)
-            status = parse_status(homeworks)
-            if status != last_message:
-                send_message(bot, status)
-                last_message = status
+            if homeworks is not None:
+                last_message = process_homeworks(homeworks, bot, last_message)
         except EmptyListException:
             logging.debug('Новых статусов в ответе API нет')
         except (InvalidApiExc, TypeError, KeyError, Exception) as error:
-            message = f'Сбой в работе программы: {error}'
-            logging.error(message)
-            if message != last_message:
-                send_message(bot, message)
-                last_message = message
+            last_message = handle_exception(error, bot, last_message)
         else:
             logging.debug('Успешная итерация - нет исключений')
         finally:
