@@ -40,14 +40,15 @@ logger.addHandler(handler)
 
 def check_tokens():
     """Проверка токенов в окружении."""
-    if not PRACTICUM_TOKEN:
-        logging.critical("PRACTICUM_TOKEN отсутствует в окружении!")
-        return False
-    if not TELEGRAM_TOKEN:
-        logging.critical("TELEGRAM_TOKEN отсутствует в окружении!")
-        return False
-    if not TELEGRAM_CHAT_ID:
-        logging.critical("TELEGRAM_CHAT_ID отсутствует в окружении!")
+    env_variables = {
+        'PRACTICUM_TOKEN': os.environ.get('PRACTICUM_TOKEN'),
+        'TELEGRAM_TOKEN': os.environ.get('TELEGRAM_TOKEN'),
+        'TELEGRAM_CHAT_ID': os.environ.get('TELEGRAM_CHAT_ID')
+    }
+
+    for variable, value in env_variables.items():
+        if not value:
+            logging.critical(f"{variable} отсутвует в окружении!")
         return False
 
     return True
@@ -88,7 +89,7 @@ def check_response(response):
     """Проверка ответа API и получение списка списка заданий."""
     if not isinstance(response, dict):
         raise TypeError('not dict после .json() в ответе API')
-    if 'homeworks' and 'current_date' not in response:
+    if ('homeworks' not in response) or ('current_date' not in response):
         raise InvalidApiExc('Некорректный ответ API')
     if not isinstance(response.get('homeworks'), list):
         raise TypeError('not list в ответе API по ключу homeworks')
@@ -118,15 +119,14 @@ def parse_status(homework):
 
 def main():
     """Основная логика работы бота."""
-    if check_tokens() is False:
+    if not check_tokens():
         sys.exit(0)
     bot = Bot(token=TELEGRAM_TOKEN)
     current_timestamp = 0
-    last_error = ''
     last_message = ''
     while True:
         try:
-            logger.debug('Начало итерации, запрос к API')
+            logging.debug('Начало итерации, запрос к API')
             response = get_api_answer(current_timestamp)
             current_timestamp = response.get('current_date')
             homeworks = check_response(response)
@@ -135,17 +135,17 @@ def main():
                 send_message(bot, status)
                 last_message = status
         except EmptyListException:
-            logger.debug('Новых статусов в ответе API нет')
+            logging.debug('Новых статусов в ответе API нет')
         except (InvalidApiExc, TypeError, KeyError, Exception) as error:
             message = f'Сбой в работе программы: {error}'
-            logger.error(message)
-            if error != last_error:
+            logging.error(message)
+            if message != last_message:
                 send_message(bot, message)
-                last_error = error
+                last_message = message
         else:
-            logger.debug('Успешная итерация - нет исключений')
+            logging.debug('Успешная итерация - нет исключений')
         finally:
-            logger.debug('Итерация завершена')
+            logging.debug('Итерация завершена')
             time.sleep(RETRY_PERIOD)
 
 
