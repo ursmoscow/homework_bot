@@ -41,9 +41,9 @@ logger.addHandler(handler)
 def check_tokens():
     """Проверка токенов в окружении."""
     env_variables = {
-        'PRACTICUM_TOKEN': os.environ.get('PRACTICUM_TOKEN'),
-        'TELEGRAM_TOKEN': os.environ.get('TELEGRAM_TOKEN'),
-        'TELEGRAM_CHAT_ID': os.environ.get('TELEGRAM_CHAT_ID')
+        'PRACTICUM_TOKEN': PRACTICUM_TOKEN,
+        'TELEGRAM_TOKEN': TELEGRAM_TOKEN,
+        'TELEGRAM_CHAT_ID': TELEGRAM_CHAT_ID
     }
 
     for variable, value in env_variables.items():
