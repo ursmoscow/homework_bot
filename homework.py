@@ -121,8 +121,7 @@ def parse_status(homework):
 
 def process_homeworks(homeworks, bot, last_message):
     """
-    Обрабатывает данные по домашним заданиям и отправляет сообщение в Телеграм,
-    если есть новые статусы.
+    Обрабатывает данные по домашним заданиям и отправляет сообщение в Телеграм.
     Возвращает последнее отправленное сообщение (last_message).
     """
     status = parse_status(homeworks)
@@ -151,7 +150,7 @@ def handle_exception(error, bot, last_message):
 def main():
     """Основная логика работы бота."""
     if not check_tokens():
-        sys.exit(1)  # Change the exit code to indicate an error   
+        sys.exit(1)
     bot = Bot(token=TELEGRAM_TOKEN)
     current_timestamp = 0
     last_message = ''
